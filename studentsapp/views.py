@@ -1,50 +1,33 @@
 from rest_framework.response import Response
-from .models import Students
+from .models import Student
 from .serializer import StudentSerializer
-from rest_framework import status
+from rest_framework import status, mixins, generics
 from rest_framework.views import APIView
 from django.http import Http404
 
 
 # Create your views here.
-class StudentList(APIView):
-    @staticmethod
-    def get(request):
-        students = Students.objects.all()
-        serializer = StudentSerializer(students, many=True)
-        return Response(serializer.data)
+class StudentList(mixins.ListModelMixin, mixins.CreateModelMixin, generics.GenericAPIView):
+    queryset = Student.objects.all()
+    serializer_class = StudentSerializer
 
-    @staticmethod
-    def post(request):
-        serializer = StudentSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    def get(self, request, *args, **kwargs):
+        return self.list(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        return self.create(request, *args, **kwargs)
 
 
-class StudentDetails(APIView):
-    @staticmethod
-    def get_object(pk):
-        try:
-            return Students.objects.get(pk=pk)
-        except Students.DoesNotExist:
-            raise Http404
+class StudentDetails(mixins.RetrieveModelMixin, mixins.UpdateModelMixin,
+                     mixins.DestroyModelMixin, generics.GenericAPIView):
+    queryset = Student.objects.all()
+    serializer_class = StudentSerializer
 
-    def get(self, request, pk):
-        student = self.get_object(pk)
-        serializer = StudentSerializer(student)
-        return Response(serializer.data)
+    def get(self, request, *args, **kwargs):
+        return self.retrieve(request, *args, **kwargs)
 
-    def put(self, request, pk):
-        student = self.get_object(pk)
-        serializer = StudentSerializer(student, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    def put(self, request, *args, **kwargs):
+        return self.update(request, *args, **kwargs)
 
-    def delete(self, pk):
-        student = self.get_object(pk)
-        student.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+    def delete(self, request, *args, **kwargs):
+        return self.destroy(request, *args, **kwargs)
