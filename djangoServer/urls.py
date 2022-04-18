@@ -22,7 +22,6 @@ app_name = 'students'
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('students/', views.students_list),
-    path('students/<pk>', views.students_details),
-    path('students/:<name>', views.students_details)
+    path('students/', views.StudentList.as_view()),
+    path('students/<pk>', views.StudentDetails.as_view())
 ]
