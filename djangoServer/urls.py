@@ -18,9 +18,9 @@ Including another URLconf
 from studentsapp import views
 from rest_framework import routers
 
-
 app_name = 'students'
 
 router = routers.SimpleRouter()
 router.register(r'students', views.StudentViewSet)
+router.register(r'teachers', views.TeacherViewSet)
 urlpatterns = router.urls
